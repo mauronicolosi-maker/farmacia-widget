@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -118,6 +117,22 @@
             border-radius: 10px;
             margin-bottom: 20px;
             color: #0c4a6e;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #667eea;
+        }
+
+        .welcome-message h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .welcome-message p {
+            font-size: 1.1em;
+            color: #666;
         }
 
         .pharmacy-card {
@@ -268,11 +283,16 @@
         </div>
 
         <div class="info-box">
-            💡 <strong>Tutte le farmacie sotto sono aperte H24</strong> (tranne Gran Farmacia La Scogliera con orari specifici)
+            💡 <strong>Inserisci il tuo indirizzo o usa il GPS</strong> per trovare le farmacie H24 più vicine
         </div>
 
         <div class="loading" id="loading">🔄 Ricerca in corso...</div>
         <div class="error" id="error"></div>
+
+        <div class="welcome-message" id="welcomeMessage">
+            <h2>👋 Benvenuto!</h2>
+            <p>Inserisci il tuo indirizzo o attiva il GPS per trovare le farmacie notturne più vicine a te.</p>
+        </div>
 
         <div id="pharmacyList"></div>
     </div>
@@ -280,14 +300,12 @@
     <script>
         const API_KEY = '4aa406d2b64442b69c07271dc5ebf4f9';
         
-        // Database farmacie notturne Catania (dati reali verificati)
         const pharmacies = [
             {
                 name: "Farmacia Barriera",
                 address: "Via del Bosco, 282, Catania",
                 phone: "095 416300",
                 hours: "Aperta 24/7",
-                link: "https://www.acatania.it/farmacia-barriera-catania/",
                 lat: 37.5234,
                 lon: 15.0612
             },
@@ -296,7 +314,6 @@
                 address: "Via Gabriele D'Annunzio, 43, Catania",
                 phone: "095 441662",
                 hours: "Aperta 24/7",
-                link: "https://www.acatania.it/farmacia-croceverde-catania/",
                 lat: 37.5128,
                 lon: 15.0820
             },
@@ -305,7 +322,6 @@
                 address: "Via Leopoldo Nobili, 3, Catania",
                 phone: "095 474326",
                 hours: "Aperta 24/7",
-                link: "https://www.acatania.it/farmacia-nesima-catania/",
                 lat: 37.5187,
                 lon: 15.0653
             },
@@ -314,7 +330,6 @@
                 address: "Via Galermo, 308, Catania",
                 phone: "095 6172858",
                 hours: "Aperta 24/7",
-                link: "https://www.acatania.it/farmacia-galermo-catania/",
                 lat: 37.5289,
                 lon: 15.0723
             },
@@ -323,7 +338,6 @@
                 address: "Via Medea, 11 B, Catania",
                 phone: "095 493737",
                 hours: "Lun-Ven: 08:00-00:00 | Sab: 08:30-00:00 | Dom: 08:30-13:30, 18:00-00:00",
-                link: "https://www.acatania.it/gran-farmacia-la-scogliera-catania/",
                 lat: 37.5423,
                 lon: 15.0982,
                 isSpecial: true
@@ -332,9 +346,8 @@
 
         let userLocation = null;
 
-        // Calcola distanza tra due coordinate (formula Haversine)
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Raggio Terra in km
+            const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -344,7 +357,6 @@
             return R * c;
         }
 
-        // Usa GPS del dispositivo
         function useGPS() {
             if (!navigator.geolocation) {
                 showError("Il tuo browser non supporta la geolocalizzazione");
@@ -370,7 +382,6 @@
             );
         }
 
-        // Cerca per indirizzo usando Geoapify
         async function searchByAddress() {
             const address = document.getElementById('addressInput').value.trim();
             
@@ -395,7 +406,7 @@
                     };
                     displayPharmacies();
                 } else {
-                    showError("Indirizzo non trovato. Prova con un indirizzo più specifico (es: Via Etnea 100, Catania).");
+                    showError("Indirizzo non trovato. Prova con un indirizzo più specifico.");
                 }
             } catch (error) {
                 showError("Errore nella ricerca. Riprova.");
@@ -404,36 +415,10 @@
             }
         }
 
-        // Mostra le farmacie ordinate per distanza
         function displayPharmacies() {
-            if (!userLocation) {
-                // Mostra tutte le farmacie senza distanza
-                const listDiv = document.getElementById('pharmacyList');
-                listDiv.innerHTML = pharmacies.map((pharmacy, index) => `
-                    <div class="pharmacy-card">
-                        <div class="pharmacy-name">${index + 1}. ${pharmacy.name}</div>
-                        <div class="pharmacy-address">
-                            <span class="icon">📍</span>
-                            ${pharmacy.address}
-                        </div>
-                        <div class="pharmacy-phone">
-                            <span class="icon">📞</span>
-                            <a href="tel:${pharmacy.phone.replace(/\s/g, '')}">${pharmacy.phone}</a>
-                        </div>
-                        <span class="pharmacy-hours ${pharmacy.isSpecial ? 'special' : ''}">${pharmacy.hours}</span>
-                        <br>
-                        <button class="btn-directions" onclick="getDirections(${pharmacy.lat}, ${pharmacy.lon})">
-                            🗺️ Indicazioni Stradali
-                        </button>
-                        <button class="btn-call" onclick="window.location.href='tel:${pharmacy.phone.replace(/\s/g, '')}'">
-                            📞 Chiama Ora
-                        </button>
-                    </div>
-                `).join('');
-                return;
-            }
+            // Nascondi il messaggio di benvenuto
+            document.getElementById('welcomeMessage').style.display = 'none';
 
-            // Calcola distanze
             const pharmaciesWithDistance = pharmacies.map(pharmacy => ({
                 ...pharmacy,
                 distance: calculateDistance(
@@ -444,10 +429,8 @@
                 )
             }));
 
-            // Ordina per distanza
             pharmaciesWithDistance.sort((a, b) => a.distance - b.distance);
 
-            // Mostra risultati
             const listDiv = document.getElementById('pharmacyList');
             listDiv.innerHTML = pharmaciesWithDistance.map((pharmacy, index) => `
                 <div class="pharmacy-card">
@@ -476,7 +459,6 @@
             `).join('');
         }
 
-        // Apri Google Maps per indicazioni
         function getDirections(destLat, destLon) {
             if (userLocation) {
                 const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lon}&destination=${destLat},${destLon}`;
@@ -501,15 +483,11 @@
             document.getElementById('error').style.display = 'none';
         }
 
-        // Permetti ricerca con tasto Invio
         document.getElementById('addressInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchByAddress();
             }
         });
-
-        // Mostra tutte le farmacie all'avvio
-        displayPharmacies();
     </script>
 </body>
 </html>
