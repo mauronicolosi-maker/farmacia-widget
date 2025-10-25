@@ -3,451 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trova Farmacia Notturna</title>
+    <title>Farmacie Notturne Vicine</title>
     <style>
-        /* Reset e isolamento per Framework 360 */
-        #widget-farmacia-f360 * {
-            box-sizing: border-box;
+        * {
             margin: 0;
             padding: 0;
-        }
-        
-        #widget-farmacia-f360 {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            box-sizing: border-box;
         }
 
-        .fw360-container {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
             border-radius: 20px;
-            padding: 60px 30px;
-            text-align: center;
+            padding: 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            color: white;
         }
 
-        .fw360-icon {
-            font-size: 60px;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .fw360-title {
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .fw360-subtitle {
-            font-size: 1.2em;
-            margin-bottom: 40px;
-            opacity: 0.95;
-        }
-
-        .fw360-gps-btn {
-            background: white;
+        h1 {
             color: #667eea;
-            border: none;
-            padding: 18px 40px;
-            font-size: 1.2em;
-            font-weight: 600;
-            border-radius: 50px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
             margin-bottom: 30px;
+            font-size: 0.9em;
         }
 
-        .fw360-gps-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
-        }
-
-        .fw360-gps-btn:active {
-            transform: translateY(-1px);
-        }
-
-        .fw360-divider {
-            margin: 30px 0;
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .fw360-search-box {
-            background: white;
-            border-radius: 50px;
-            padding: 8px;
+        .search-box {
             display: flex;
             gap: 10px;
-            max-width: 600px;
-            margin: 0 auto;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
         }
 
-        .fw360-input {
+        #addressInput {
             flex: 1;
-            border: none;
-            padding: 15px 25px;
-            font-size: 1.1em;
-            border-radius: 50px;
-            outline: none;
-            color: #333;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
         }
 
-        .fw360-search-btn {
+        #addressInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-search {
             background: #667eea;
             color: white;
-            border: none;
-            padding: 15px 35px;
-            font-size: 1.1em;
-            font-weight: 600;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        }
+
+        .btn-search:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-gps {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-gps:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            padding: 20px;
+            display: none;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .pharmacy-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .pharmacy-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .pharmacy-name {
+            font-size: 1.3em;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .pharmacy-address {
+            color: #666;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .fw360-search-btn:hover {
-            background: #5568d3;
+        .pharmacy-distance {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pharmacy-phone {
+            color: #10b981;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pharmacy-hours {
+            background: #10b981;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .btn-directions {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-directions:hover {
+            background: #059669;
             transform: scale(1.05);
         }
 
-        .fw360-results {
-            margin-top: 40px;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            display: none;
-        }
-
-        .fw360-results.active {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fw360-farmacia-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-left: 5px solid #667eea;
-            transition: all 0.3s ease;
-        }
-
-        .fw360-farmacia-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .fw360-farmacia-name {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .fw360-farmacia-address {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-
-        .fw360-farmacia-distance {
-            color: #667eea;
-            font-weight: 600;
-            font-size: 1.2em;
-        }
-
-        .fw360-farmacia-phone {
-            color: #28a745;
-            font-weight: 600;
-            margin-top: 10px;
-            font-size: 1.1em;
-        }
-
-        .fw360-status {
-            background: #667eea;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 50px;
-            display: inline-block;
-            margin-top: 15px;
-            font-weight: 600;
-        }
-
-        .fw360-loading {
-            text-align: center;
-            padding: 40px;
-            color: #667eea;
-            font-size: 1.2em;
-        }
-
-        .fw360-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .fw360-error {
-            background: #dc3545;
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
+        #pharmacyList {
             margin-top: 20px;
         }
 
-        @media (max-width: 768px) {
-            .fw360-title {
-                font-size: 1.8em;
-            }
-            
-            .fw360-subtitle {
-                font-size: 1em;
-            }
-            
-            .fw360-search-box {
+        .icon {
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 600px) {
+            .search-box {
                 flex-direction: column;
             }
             
-            .fw360-search-btn {
+            .btn {
                 width: 100%;
-                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
-    <div id="widget-farmacia-f360">
-        <div class="fw360-container">
-            <div class="fw360-icon">🎯</div>
-            <h1 class="fw360-title">Trova la Farmacia Notturna Più Vicina a Te</h1>
-            <p class="fw360-subtitle">Usa la geolocalizzazione per scoprire quale farmacia h24 è più vicina alla tua posizione</p>
-            
-            <button class="fw360-gps-btn" id="gpsBtn">
-                📍 Usa la Mia Posizione GPS
-            </button>
-            
-            <div class="fw360-divider">Oppure cerca manualmente:</div>
-            
-            <div class="fw360-search-box">
-                <input 
-                    type="text" 
-                    class="fw360-input" 
-                    id="searchInput"
-                    placeholder="Es: Via Etnea, 100, Catania"
-                    autocomplete="off"
-                />
-                <button class="fw360-search-btn" id="searchBtn">
-                    🔍 Cerca
-                </button>
-            </div>
+    <div class="container">
+        <h1>🏥 Farmacie Notturne Vicine</h1>
+        <p class="subtitle">Trova le farmacie di turno più vicine a te</p>
+
+        <div class="search-box">
+            <input type="text" id="addressInput" placeholder="Inserisci il tuo indirizzo (es. Via Roma 10, Catania)">
+            <button class="btn btn-search" onclick="searchByAddress()">🔍 Cerca</button>
+            <button class="btn btn-gps" onclick="useGPS()">📍 GPS</button>
         </div>
-        
-        <div class="fw360-results" id="results"></div>
+
+        <div class="loading" id="loading">🔄 Ricerca in corso...</div>
+        <div class="error" id="error"></div>
+
+        <div id="pharmacyList"></div>
     </div>
 
     <script>
-        // Database farmacie di esempio (SOSTITUISCI CON I TUOI DATI REALI)
-        const farmacieDatabase = [
+        const API_KEY = '4aa406d2b64442b69c07271dc5ebf4f9';
+        
+        // Database farmacie Catania
+        const pharmacies = [
             {
-                nome: "Farmacia Centrale H24",
-                indirizzo: "Via Etnea, 100, Catania",
-                telefono: "095 123 4567",
+                name: "Farmacia Centrale H24",
+                address: "Via Etnea, 100, Catania",
+                phone: "095 123 4567",
+                hours: "Aperta 24/7",
                 lat: 37.5079,
-                lon: 15.0830,
-                orario: "Aperta 24/7"
+                lon: 15.0830
             },
             {
-                nome: "Farmacia del Corso",
-                indirizzo: "Corso Italia, 45, Catania",
-                telefono: "095 234 5678",
-                lat: 37.5029,
-                lon: 15.0900,
-                orario: "Aperta 24/7"
+                name: "Farmacia San Giovanni",
+                address: "Via San Giovanni, 23, Catania",
+                phone: "095 345 6789",
+                hours: "Notturna 20:00-08:00",
+                lat: 37.5020,
+                lon: 15.0870
             },
             {
-                nome: "Farmacia San Giovanni",
-                indirizzo: "Via San Giovanni, 23, Catania",
-                telefono: "095 345 6789",
+                name: "Farmacia del Corso",
+                address: "Corso Italia, 45, Catania",
+                phone: "095 234 5678",
+                hours: "Aperta 24/7",
+                lat: 37.5050,
+                lon: 15.0850
+            },
+            {
+                name: "Farmacia Europa",
+                address: "Viale Europa, 78, Catania",
+                phone: "095 456 7890",
+                hours: "Aperta 24/7",
                 lat: 37.5100,
-                lon: 15.0750,
-                orario: "Notturna 20:00-08:00"
-            },
-            {
-                nome: "Farmacia Europa",
-                indirizzo: "Viale Europa, 78, Catania",
-                telefono: "095 456 7890",
-                lat: 37.5150,
-                lon: 15.0950,
-                orario: "Aperta 24/7"
+                lon: 15.0900
             }
         ];
 
-        // Funzione per calcolare la distanza tra due coordinate
-        function calcolaDistanza(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Raggio della Terra in km
+        let userLocation = null;
+
+        // Calcola distanza tra due coordinate (formula Haversine)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Raggio Terra in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
         }
 
-        // Mostra loading
-        function mostraLoading() {
-            const results = document.getElementById('results');
-            results.innerHTML = `
-                <div class="fw360-loading">
-                    <div class="fw360-spinner"></div>
-                    <p>Ricerca in corso...</p>
-                </div>
-            `;
-            results.classList.add('active');
-        }
-
-        // Mostra errore
-        function mostraErrore(messaggio) {
-            const results = document.getElementById('results');
-            results.innerHTML = `
-                <div class="fw360-error">
-                    <strong>⚠️ Errore:</strong> ${messaggio}
-                </div>
-            `;
-            results.classList.add('active');
-        }
-
-        // Mostra risultati
-        function mostraRisultati(farmacie, userLat, userLon) {
-            // Calcola distanze e ordina
-            const farmacieConDistanza = farmacie.map(f => ({
-                ...f,
-                distanza: calcolaDistanza(userLat, userLon, f.lat, f.lon)
-            })).sort((a, b) => a.distanza - b.distanza);
-
-            const results = document.getElementById('results');
-            let html = '<h2 style="color: #333; margin-bottom: 30px; font-size: 2em;">🏥 Farmacie Notturne Vicine</h2>';
-            
-            farmacieConDistanza.forEach((f, index) => {
-                html += `
-                    <div class="fw360-farmacia-card">
-                        <div class="fw360-farmacia-name">${index + 1}. ${f.nome}</div>
-                        <div class="fw360-farmacia-address">📍 ${f.indirizzo}</div>
-                        <div class="fw360-farmacia-distance">📏 Distanza: ${f.distanza.toFixed(2)} km</div>
-                        <div class="fw360-farmacia-phone">📞 ${f.telefono}</div>
-                        <div class="fw360-status">${f.orario}</div>
-                        <div style="margin-top: 15px;">
-                            <a href="https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lon}" 
-                               target="_blank" 
-                               style="background: #28a745; color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; display: inline-block; font-weight: 600; transition: all 0.3s;">
-                                🗺️ Indicazioni Stradali
-                            </a>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            results.innerHTML = html;
-            results.classList.add('active');
-        }
-
-        // Geolocalizzazione GPS
-        document.getElementById('gpsBtn').addEventListener('click', function() {
+        // Usa GPS del dispositivo
+        function useGPS() {
             if (!navigator.geolocation) {
-                mostraErrore('Il tuo browser non supporta la geolocalizzazione');
+                showError("Il tuo browser non supporta la geolocalizzazione");
                 return;
             }
-            
-            mostraLoading();
-            
+
+            showLoading(true);
+            hideError();
+
             navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const userLat = position.coords.latitude;
-                    const userLon = position.coords.longitude;
-                    mostraRisultati(farmacieDatabase, userLat, userLon);
+                position => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    };
+                    displayPharmacies();
+                    showLoading(false);
                 },
-                function(error) {
-                    let messaggio = 'Impossibile ottenere la posizione';
-                    if (error.code === 1) {
-                        messaggio = 'Permesso di geolocalizzazione negato. Abilita il GPS nelle impostazioni del browser.';
-                    } else if (error.code === 2) {
-                        messaggio = 'Posizione non disponibile. Verifica la connessione GPS.';
-                    } else if (error.code === 3) {
-                        messaggio = 'Timeout della richiesta di geolocalizzazione.';
-                    }
-                    mostraErrore(messaggio);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+                error => {
+                    showLoading(false);
+                    showError("Impossibile ottenere la tua posizione. Controlla i permessi del browser.");
                 }
             );
-        });
+        }
 
-        // Ricerca manuale (semplificata - usa coordinate di Catania centro come default)
-        document.getElementById('searchBtn').addEventListener('click', function() {
-            const indirizzo = document.getElementById('searchInput').value.trim();
+        // Cerca per indirizzo usando Geoapify
+        async function searchByAddress() {
+            const address = document.getElementById('addressInput').value.trim();
             
-            if (!indirizzo) {
-                mostraErrore('Inserisci un indirizzo per la ricerca');
+            if (!address) {
+                showError("Inserisci un indirizzo!");
                 return;
             }
-            
-            mostraLoading();
-            
-            // Coordinate di default per Catania centro
-            const cataniaLat = 37.5079;
-            const cataniaLon = 15.0830;
-            
-            setTimeout(() => {
-                mostraRisultati(farmacieDatabase, cataniaLat, cataniaLon);
-            }, 500);
-        });
 
-        // Ricerca con Enter
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            showLoading(true);
+            hideError();
+
+            try {
+                const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.features && data.features.length > 0) {
+                    const coords = data.features[0].geometry.coordinates;
+                    userLocation = {
+                        lat: coords[1],
+                        lon: coords[0]
+                    };
+                    displayPharmacies();
+                } else {
+                    showError("Indirizzo non trovato. Prova con un indirizzo più specifico.");
+                }
+            } catch (error) {
+                showError("Errore nella ricerca. Riprova.");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Mostra le farmacie ordinate per distanza
+        function displayPharmacies() {
+            if (!userLocation) return;
+
+            // Calcola distanze
+            const pharmaciesWithDistance = pharmacies.map(pharmacy => ({
+                ...pharmacy,
+                distance: calculateDistance(
+                    userLocation.lat,
+                    userLocation.lon,
+                    pharmacy.lat,
+                    pharmacy.lon
+                )
+            }));
+
+            // Ordina per distanza
+            pharmaciesWithDistance.sort((a, b) => a.distance - b.distance);
+
+            // Mostra risultati
+            const listDiv = document.getElementById('pharmacyList');
+            listDiv.innerHTML = pharmaciesWithDistance.map((pharmacy, index) => `
+                <div class="pharmacy-card">
+                    <div class="pharmacy-name">${index + 1}. ${pharmacy.name}</div>
+                    <div class="pharmacy-address">
+                        <span class="icon">📍</span>
+                        ${pharmacy.address}
+                    </div>
+                    <div class="pharmacy-distance">
+                        <span class="icon">📏</span>
+                        Distanza: ${pharmacy.distance.toFixed(2)} km
+                    </div>
+                    <div class="pharmacy-phone">
+                        <span class="icon">📞</span>
+                        ${pharmacy.phone}
+                    </div>
+                    <span class="pharmacy-hours">${pharmacy.hours}</span>
+                    <br>
+                    <button class="btn-directions" onclick="getDirections(${pharmacy.lat}, ${pharmacy.lon})">
+                        🗺️ Indicazioni Stradali
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Apri Google Maps per indicazioni
+        function getDirections(destLat, destLon) {
+            if (userLocation) {
+                const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lon}&destination=${destLat},${destLon}`;
+                window.open(url, '_blank');
+            } else {
+                const url = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLon}`;
+                window.open(url, '_blank');
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        // Permetti ricerca con tasto Invio
+        document.getElementById('addressInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                document.getElementById('searchBtn').click();
+                searchByAddress();
             }
         });
     </script>
 </body>
 </html>
-
