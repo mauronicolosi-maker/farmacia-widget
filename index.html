@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmacie Notturne Vicine</title>
+    <title>Farmacie Notturne Catania</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +20,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -45,10 +46,12 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         #addressInput {
             flex: 1;
+            min-width: 200px;
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
@@ -96,6 +99,7 @@
             color: #667eea;
             padding: 20px;
             display: none;
+            font-size: 1.1em;
         }
 
         .error {
@@ -107,10 +111,19 @@
             display: none;
         }
 
+        .info-box {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #0c4a6e;
+        }
+
         .pharmacy-card {
             background: #f8f9fa;
             border-radius: 15px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 15px;
             border-left: 5px solid #667eea;
             transition: transform 0.3s, box-shadow 0.3s;
@@ -122,7 +135,7 @@
         }
 
         .pharmacy-name {
-            font-size: 1.3em;
+            font-size: 1.4em;
             color: #333;
             font-weight: bold;
             margin-bottom: 10px;
@@ -134,6 +147,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 1.05em;
         }
 
         .pharmacy-distance {
@@ -143,11 +157,12 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 1.05em;
         }
 
         .pharmacy-phone {
             color: #10b981;
-            font-size: 1.1em;
+            font-size: 1.15em;
             font-weight: bold;
             margin-bottom: 10px;
             display: flex;
@@ -155,32 +170,64 @@
             gap: 8px;
         }
 
+        .pharmacy-phone a {
+            color: #10b981;
+            text-decoration: none;
+        }
+
+        .pharmacy-phone a:hover {
+            text-decoration: underline;
+        }
+
         .pharmacy-hours {
             background: #10b981;
             color: white;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             display: inline-block;
-            font-size: 0.85em;
-            margin-bottom: 10px;
+            font-size: 0.9em;
+            margin-bottom: 12px;
             font-weight: bold;
+        }
+
+        .pharmacy-hours.special {
+            background: #f59e0b;
         }
 
         .btn-directions {
             background: #10b981;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+
+        .btn-directions:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+
+        .btn-call {
+            background: #0ea5e9;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
             font-weight: bold;
             transition: all 0.3s;
             margin-top: 10px;
         }
 
-        .btn-directions:hover {
-            background: #059669;
+        .btn-call:hover {
+            background: #0284c7;
             transform: scale(1.05);
         }
 
@@ -200,18 +247,28 @@
             .btn {
                 width: 100%;
             }
+
+            .btn-directions, .btn-call {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏥 Farmacie Notturne Vicine</h1>
-        <p class="subtitle">Trova le farmacie di turno più vicine a te</p>
+        <h1>🏥 Farmacie Notturne Catania</h1>
+        <p class="subtitle">Trova le farmacie H24 più vicine a te</p>
 
         <div class="search-box">
-            <input type="text" id="addressInput" placeholder="Inserisci il tuo indirizzo (es. Via Roma 10, Catania)">
+            <input type="text" id="addressInput" placeholder="Inserisci il tuo indirizzo (es. Via Etnea 100, Catania)">
             <button class="btn btn-search" onclick="searchByAddress()">🔍 Cerca</button>
-            <button class="btn btn-gps" onclick="useGPS()">📍 GPS</button>
+            <button class="btn btn-gps" onclick="useGPS()">📍 Usa GPS</button>
+        </div>
+
+        <div class="info-box">
+            💡 <strong>Tutte le farmacie sotto sono aperte H24</strong> (tranne Gran Farmacia La Scogliera con orari specifici)
         </div>
 
         <div class="loading" id="loading">🔄 Ricerca in corso...</div>
@@ -223,39 +280,53 @@
     <script>
         const API_KEY = '4aa406d2b64442b69c07271dc5ebf4f9';
         
-        // Database farmacie Catania
+        // Database farmacie notturne Catania (dati reali verificati)
         const pharmacies = [
             {
-                name: "Farmacia Centrale H24",
-                address: "Via Etnea, 100, Catania",
-                phone: "095 123 4567",
+                name: "Farmacia Barriera",
+                address: "Via del Bosco, 282, Catania",
+                phone: "095 416300",
                 hours: "Aperta 24/7",
-                lat: 37.5079,
-                lon: 15.0830
+                link: "https://www.acatania.it/farmacia-barriera-catania/",
+                lat: 37.5234,
+                lon: 15.0612
             },
             {
-                name: "Farmacia San Giovanni",
-                address: "Via San Giovanni, 23, Catania",
-                phone: "095 345 6789",
-                hours: "Notturna 20:00-08:00",
-                lat: 37.5020,
-                lon: 15.0870
+                name: "Farmacia Croceverde",
+                address: "Via Gabriele D'Annunzio, 43, Catania",
+                phone: "095 441662",
+                hours: "Aperta 24/7",
+                link: "https://www.acatania.it/farmacia-croceverde-catania/",
+                lat: 37.5128,
+                lon: 15.0820
             },
             {
-                name: "Farmacia del Corso",
-                address: "Corso Italia, 45, Catania",
-                phone: "095 234 5678",
+                name: "Farmacia Nesima",
+                address: "Via Leopoldo Nobili, 3, Catania",
+                phone: "095 474326",
                 hours: "Aperta 24/7",
-                lat: 37.5050,
-                lon: 15.0850
+                link: "https://www.acatania.it/farmacia-nesima-catania/",
+                lat: 37.5187,
+                lon: 15.0653
             },
             {
-                name: "Farmacia Europa",
-                address: "Viale Europa, 78, Catania",
-                phone: "095 456 7890",
+                name: "Farmacia Galermo",
+                address: "Via Galermo, 308, Catania",
+                phone: "095 6172858",
                 hours: "Aperta 24/7",
-                lat: 37.5100,
-                lon: 15.0900
+                link: "https://www.acatania.it/farmacia-galermo-catania/",
+                lat: 37.5289,
+                lon: 15.0723
+            },
+            {
+                name: "Gran Farmacia La Scogliera",
+                address: "Via Medea, 11 B, Catania",
+                phone: "095 493737",
+                hours: "Lun-Ven: 08:00-00:00 | Sab: 08:30-00:00 | Dom: 08:30-13:30, 18:00-00:00",
+                link: "https://www.acatania.it/gran-farmacia-la-scogliera-catania/",
+                lat: 37.5423,
+                lon: 15.0982,
+                isSpecial: true
             }
         ];
 
@@ -324,7 +395,7 @@
                     };
                     displayPharmacies();
                 } else {
-                    showError("Indirizzo non trovato. Prova con un indirizzo più specifico.");
+                    showError("Indirizzo non trovato. Prova con un indirizzo più specifico (es: Via Etnea 100, Catania).");
                 }
             } catch (error) {
                 showError("Errore nella ricerca. Riprova.");
@@ -335,7 +406,32 @@
 
         // Mostra le farmacie ordinate per distanza
         function displayPharmacies() {
-            if (!userLocation) return;
+            if (!userLocation) {
+                // Mostra tutte le farmacie senza distanza
+                const listDiv = document.getElementById('pharmacyList');
+                listDiv.innerHTML = pharmacies.map((pharmacy, index) => `
+                    <div class="pharmacy-card">
+                        <div class="pharmacy-name">${index + 1}. ${pharmacy.name}</div>
+                        <div class="pharmacy-address">
+                            <span class="icon">📍</span>
+                            ${pharmacy.address}
+                        </div>
+                        <div class="pharmacy-phone">
+                            <span class="icon">📞</span>
+                            <a href="tel:${pharmacy.phone.replace(/\s/g, '')}">${pharmacy.phone}</a>
+                        </div>
+                        <span class="pharmacy-hours ${pharmacy.isSpecial ? 'special' : ''}">${pharmacy.hours}</span>
+                        <br>
+                        <button class="btn-directions" onclick="getDirections(${pharmacy.lat}, ${pharmacy.lon})">
+                            🗺️ Indicazioni Stradali
+                        </button>
+                        <button class="btn-call" onclick="window.location.href='tel:${pharmacy.phone.replace(/\s/g, '')}'">
+                            📞 Chiama Ora
+                        </button>
+                    </div>
+                `).join('');
+                return;
+            }
 
             // Calcola distanze
             const pharmaciesWithDistance = pharmacies.map(pharmacy => ({
@@ -366,12 +462,15 @@
                     </div>
                     <div class="pharmacy-phone">
                         <span class="icon">📞</span>
-                        ${pharmacy.phone}
+                        <a href="tel:${pharmacy.phone.replace(/\s/g, '')}">${pharmacy.phone}</a>
                     </div>
-                    <span class="pharmacy-hours">${pharmacy.hours}</span>
+                    <span class="pharmacy-hours ${pharmacy.isSpecial ? 'special' : ''}">${pharmacy.hours}</span>
                     <br>
                     <button class="btn-directions" onclick="getDirections(${pharmacy.lat}, ${pharmacy.lon})">
                         🗺️ Indicazioni Stradali
+                    </button>
+                    <button class="btn-call" onclick="window.location.href='tel:${pharmacy.phone.replace(/\s/g, '')}'">
+                        📞 Chiama Ora
                     </button>
                 </div>
             `).join('');
@@ -408,6 +507,9 @@
                 searchByAddress();
             }
         });
+
+        // Mostra tutte le farmacie all'avvio
+        displayPharmacies();
     </script>
 </body>
 </html>
